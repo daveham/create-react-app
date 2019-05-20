@@ -72,6 +72,8 @@ const resolveModule = (resolveFn, filePath) => {
 
   return resolveFn(`${filePath}.js`);
 };
+// const appDirectory = fs.realpathSync(process.cwd());
+// const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
 // config after eject: we're in ./config/
 module.exports = {
@@ -80,7 +82,15 @@ module.exports = {
   appBuild: resolveApp('build'),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
+  appLoginHtml: resolveApp('public/login.html'),
+  appOnboardingHtml: resolveApp('public/onboarding.html'),
+  appSignupHtml: resolveApp('public/signup.html'),
+  appVerifyEmailHtml: resolveApp('public/verify-email.html'),
   appIndexJs: resolveModule(resolveApp, 'src/index'),
+  appLegacyIndexJs: resolveModule(resolveApp, 'src/legacy-app/index'),
+  appLoginIndexJs: resolveModule(resolveApp, 'src/login-main'),
+  appOnboardingIndexJs: resolveModule(resolveApp, 'src/onboarding/index'),
+  appSignupIndexJs: resolveModule(resolveApp, 'src/sign-up/index'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
@@ -103,7 +113,15 @@ module.exports = {
   appBuild: resolveApp('build'),
   appPublic: resolveApp('public'),
   appHtml: resolveApp('public/index.html'),
+  appLoginHtml: resolveApp('public/login.html'),
+  appOnboardingHtml: resolveApp('public/onboarding.html'),
+  appSignupHtml: resolveApp('public/signup.html'),
+  appVerifyEmailHtml: resolveApp('public/verify-email.html'),
   appIndexJs: resolveModule(resolveApp, 'src/index'),
+  appLegacyIndexJs: resolveModule(resolveApp, 'src/legacy-app/index'),
+  appLoginIndexJs: resolveModule(resolveApp, 'src/login-main'),
+  appOnboardingIndexJs: resolveModule(resolveApp, 'src/onboarding/index'),
+  appSignupIndexJs: resolveModule(resolveApp, 'src/sign-up/index'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
@@ -138,7 +156,21 @@ if (
     appBuild: resolveOwn('../../build'),
     appPublic: resolveOwn('template/public'),
     appHtml: resolveOwn('template/public/index.html'),
+    appLoginHtml: resolveApp('template/public/login.html'),
+    appOnboardingHtml: resolveApp('template/public/onboarding.html'),
+    appSignupHtml: resolveApp('template/public/signup.html'),
+    appVerifyEmailHtml: resolveApp('template/public/verify-email.html'),
     appIndexJs: resolveModule(resolveOwn, 'template/src/index'),
+    appLegacyIndexJs: resolveModule(
+      resolveApp,
+      'template/src/legacy-app/index'
+    ),
+    appLoginIndexJs: resolveModule(resolveApp, 'template/src/login-main'),
+    appOnboardingIndexJs: resolveModule(
+      resolveApp,
+      'template/src/onboarding/index'
+    ),
+    appSignupIndexJs: resolveModule(resolveApp, 'template/src/sign-up/index'),
     appPackageJson: resolveOwn('package.json'),
     appSrc: resolveOwn('template/src'),
     appTsConfig: resolveOwn('template/tsconfig.json'),

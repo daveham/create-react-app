@@ -37,6 +37,8 @@ const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
 const getCacheIdentifier = require('react-dev-utils/getCacheIdentifier');
 // @remove-on-eject-end
 const postcssNormalize = require('postcss-normalize');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -58,6 +60,119 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 module.exports = function(webpackEnv) {
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
+
+  // *** Call-Em-All R2D2 ***
+  const conditionalHotDevClient =
+    isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient');
+
+  const r2d2EntryPoints = {
+    bundle: [
+      // Include an alternative client for WebpackDevServer. A client's job is to
+      // connect to WebpackDevServer by a socket and get notified about changes.
+      // When you save a file, the client will either apply hot updates (in case
+      // of CSS changes), or refresh the page (in case of JS changes). When you
+      // make a syntax error, this client will display a syntax error overlay.
+      // Note: instead of the default WebpackDevServer client, we use a custom one
+      // to bring better experience for Create React App users. You can replace
+      // the line below with these two lines if you prefer the stock client:
+      // require.resolve('webpack-dev-server/client') + '?/',
+      // require.resolve('webpack/hot/dev-server'),
+      conditionalHotDevClient,
+      // Finally, this is your app's code:
+      // We include the app code last so that if there is a runtime error during
+      // initialization, it doesn't blow up the WebpackDevServer client, and
+      // changing JS code would still trigger a refresh.
+      paths.appIndexJs,
+    ].filter(Boolean),
+    legacy: [conditionalHotDevClient, paths.appLegacyIndexJs].filter(Boolean),
+    login: [conditionalHotDevClient, paths.appLoginIndexJs].filter(Boolean),
+    onboarding: [conditionalHotDevClient, paths.appOnboardingIndexJs].filter(
+      Boolean
+    ),
+    signup: [conditionalHotDevClient, paths.appSignupIndexJs].filter(Boolean),
+  };
+
+  const minifyOptions = isEnvProduction
+    ? {
+        minify: {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          keepClosingSlash: true,
+          minifyJS: true,
+          minifyCSS: true,
+          minifyURLs: true,
+        },
+      }
+    : undefined;
+
+  const r2d2HtmlPlugins = [
+    // Generates an file with the <script> injected for every R2D2 entry point.
+    new HtmlWebpackPlugin(
+      Object.assign(
+        {},
+        {
+          inject: true,
+          chunks: ['bundle'],
+          template: paths.appHtml,
+          filename: 'index.html',
+        },
+        minifyOptions
+      )
+    ),
+    new HtmlWebpackPlugin(
+      Object.assign(
+        {},
+        {
+          inject: true,
+          chunks: ['login'],
+          template: paths.appLoginHtml,
+          filename: 'login.html',
+        },
+        minifyOptions
+      )
+    ),
+    new HtmlWebpackPlugin(
+      Object.assign(
+        {},
+        {
+          inject: true,
+          chunks: ['onboarding'],
+          template: paths.appOnboardingHtml,
+          filename: 'onboarding.html',
+        },
+        minifyOptions
+      )
+    ),
+    new HtmlWebpackPlugin(
+      Object.assign(
+        {},
+        {
+          inject: true,
+          chunks: ['signup'],
+          template: paths.appSignupHtml,
+          filename: 'signup.html',
+        },
+        minifyOptions
+      )
+    ),
+    new HtmlWebpackPlugin(
+      Object.assign(
+        {},
+        {
+          inject: true,
+          chunks: ['verify-email'],
+          template: paths.appVerifyEmailHtml,
+          filename: 'verify-email.html',
+        },
+        minifyOptions
+      )
+    ),
+  ];
+  // *** Call-Em-All R2D2 ***
 
   // Webpack uses `publicPath` to determine where the app is being served from.
   // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -138,25 +253,8 @@ module.exports = function(webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    entry: [
-      // Include an alternative client for WebpackDevServer. A client's job is to
-      // connect to WebpackDevServer by a socket and get notified about changes.
-      // When you save a file, the client will either apply hot updates (in case
-      // of CSS changes), or refresh the page (in case of JS changes). When you
-      // make a syntax error, this client will display a syntax error overlay.
-      // Note: instead of the default WebpackDevServer client, we use a custom one
-      // to bring better experience for Create React App users. You can replace
-      // the line below with these two lines if you prefer the stock client:
-      // require.resolve('webpack-dev-server/client') + '?/',
-      // require.resolve('webpack/hot/dev-server'),
-      isEnvDevelopment &&
-        require.resolve('react-dev-utils/webpackHotDevClient'),
-      // Finally, this is your app's code:
-      paths.appIndexJs,
-      // We include the app code last so that if there is a runtime error during
-      // initialization, it doesn't blow up the WebpackDevServer client, and
-      // changing JS code would still trigger a refresh.
-    ].filter(Boolean),
+    // *** Call-Em-All R2D2 ***
+    entry: r2d2EntryPoints,
     output: {
       // The build folder.
       path: isEnvProduction ? paths.appBuild : undefined,
@@ -523,32 +621,8 @@ module.exports = function(webpackEnv) {
       ],
     },
     plugins: [
-      // Generates an `index.html` file with the <script> injected.
-      new HtmlWebpackPlugin(
-        Object.assign(
-          {},
-          {
-            inject: true,
-            template: paths.appHtml,
-          },
-          isEnvProduction
-            ? {
-                minify: {
-                  removeComments: true,
-                  collapseWhitespace: true,
-                  removeRedundantAttributes: true,
-                  useShortDoctype: true,
-                  removeEmptyAttributes: true,
-                  removeStyleLinkTypeAttributes: true,
-                  keepClosingSlash: true,
-                  minifyJS: true,
-                  minifyCSS: true,
-                  minifyURLs: true,
-                },
-              }
-            : undefined
-        )
-      ),
+      // *** Call-Em-All R2D2 ***
+      ...r2d2HtmlPlugins,
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       isEnvProduction &&
@@ -655,6 +729,21 @@ module.exports = function(webpackEnv) {
           silent: true,
           // The formatter is invoked directly in WebpackDevServerUtils during development
           formatter: isEnvProduction ? typescriptFormatter : undefined,
+        }),
+      // *** Call-Em-All R2D2 ***
+      // Support for webpack-bundle-analyzer
+      //   (https://github.com/webpack-contrib/webpack-bundle-analyzer)
+      // In order to produce statistics for webpack bundle analyzer, add this to your .env file:
+      //   WEBPACK_BUNDLE_ANALYZER_FILE=statistics
+      // When a client build is performed, the file statistics.json will be created in the
+      // client/build folder and you can launch the interactive bundle analyzer with the tool's CLI.
+      isEnvProduction &&
+        process.env.WEBPACK_BUNDLE_ANALYZER_FILE &&
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'disabled',
+          generateStatsFile: true,
+          statsFilename:
+            './' + process.env.WEBPACK_BUNDLE_ANALYZER_FILE + '.json',
         }),
     ].filter(Boolean),
     // Some libraries import Node modules but don't use them in the browser.

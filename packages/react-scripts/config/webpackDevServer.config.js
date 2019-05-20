@@ -18,7 +18,24 @@ const fs = require('fs');
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 const host = process.env.HOST || '0.0.0.0';
 
+function proxyFilter(pathname, req) {
+  return (
+    pathname.startsWith('/proxy/') ||
+    (req.headers.accept && req.headers.accept.indexOf('application/json') > -1)
+  );
+}
+
 module.exports = function(proxy, allowedHost) {
+  if (proxy) {
+    console.log('configuring proxy', proxy);
+    proxy.forEach(p => {
+      p.logLevel = 'info';
+      p.context = proxyFilter;
+      p.xfwd = true;
+      p.changeOrigin = true;
+    });
+  }
+
   return {
     // WebpackDevServer 2.4.3 introduced a security fix that prevents remote
     // websites from potentially accessing local content through DNS rebinding:
