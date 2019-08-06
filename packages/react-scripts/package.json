@@ -1,5 +1,5 @@
 {
-  "name": "call-em-all-react-scripts",
+  "name": "daveham-react-scripts",
   "version": "3.0.1",
   "description": "Call-Em-All configuration and scripts for Create React App.",
   "repository": {
@@ -12,7 +12,7 @@
     "node": ">=8.10"
   },
   "bugs": {
-    "url": "https://github.com/facebook/create-react-app/issues"
+    "url": "https://github.com/daveham/create-react-app/issues"
   },
   "files": [
     "bin",
