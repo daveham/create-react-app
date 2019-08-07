@@ -419,6 +419,13 @@ module.exports = function(webpackEnv) {
                 // @remove-on-eject-begin
                 baseConfig: {
                   extends: [require.resolve('eslint-config-react-app')],
+                  // CEA: disable some rules for now
+                  rules: {
+                    'jsx-a11y/anchor-is-valid': 'off',
+                    'jsx-a11y/aria-role': 'off',
+                    'react-hooks/exhaustive-deps': 'off',
+                    'no-control-regex': 'off',
+                  },
                 },
                 ignore: false,
                 useEslintrc: false,
