@@ -73,7 +73,7 @@ module.exports = function(webpackEnv) {
     isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient');
 
   const r2d2EntryPoints = {
-    bundle: [
+    app: [
       // Include an alternative client for WebpackDevServer. A client's job is to
       // connect to WebpackDevServer by a socket and get notified about changes.
       // When you save a file, the client will either apply hot updates (in case
@@ -91,13 +91,17 @@ module.exports = function(webpackEnv) {
       // changing JS code would still trigger a refresh.
       paths.appIndexJs,
     ].filter(Boolean),
-    legacy: [conditionalHotDevClient, paths.appLegacyIndexJs].filter(Boolean),
     login: [conditionalHotDevClient, paths.appLoginIndexJs].filter(Boolean),
     onboarding: [conditionalHotDevClient, paths.appOnboardingIndexJs].filter(
       Boolean
     ),
     signup: [conditionalHotDevClient, paths.appSignupIndexJs].filter(Boolean),
+    /* legacy: [conditionalHotDevClient, paths.appLegacyIndexJs].filter(Boolean), */
   };
+  // Adding the legacy entry point breaks hot/live reloading.
+  if (!isEnvDevelopment) {
+    r2d2EntryPoints.legacy = [paths.appLegacyIndexJs];
+  }
 
   const minifyOptions = isEnvProduction
     ? {
@@ -123,7 +127,7 @@ module.exports = function(webpackEnv) {
         {},
         {
           inject: true,
-          chunks: ['bundle'],
+          chunks: ['app'],
           template: paths.appHtml,
           filename: 'index.html',
         },
@@ -279,7 +283,7 @@ module.exports = function(webpackEnv) {
       // In development, it does not produce real files.
       filename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].js'
-        : isEnvDevelopment && 'static/js/bundle.js',
+        : isEnvDevelopment && 'static/js/[name].js',
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
@@ -375,7 +379,7 @@ module.exports = function(webpackEnv) {
       },
       // Keep the runtime chunk separated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
-      runtimeChunk: true,
+      runtimeChunk: 'single', // *** CEA true,
     },
     resolve: {
       // This allows you to set a fallback for where Webpack should look for modules.
@@ -457,6 +461,13 @@ module.exports = function(webpackEnv) {
                   } else {
                     return {
                       extends: [require.resolve('eslint-config-react-app')],
+                      // *** CEA - temporarily disable some linting rules
+                      rules: {
+                        'jsx-a11y/anchor-is-valid': 'off',
+                        'jsx-a11y/aria-role': 'off',
+                        'react-hooks/exhaustive-deps': 'off',
+                        'no-control-regex': 'off',
+                      },
                     };
                   }
                 })(),
