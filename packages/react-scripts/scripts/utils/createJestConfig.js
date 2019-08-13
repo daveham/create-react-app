@@ -81,6 +81,7 @@ module.exports = (resolve, rootDir, isEjecting) => {
     'resetMocks',
     'resetModules',
     'snapshotSerializers',
+    'testPathIgnorePatterns', // *** CEA added
     'transform',
     'transformIgnorePatterns',
     'watchPathIgnorePatterns',
