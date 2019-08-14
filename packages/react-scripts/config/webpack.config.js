@@ -272,8 +272,7 @@ module.exports = function(webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    // *** Call-Em-All R2D2 ***
-    entry: r2d2EntryPoints,
+    entry: r2d2EntryPoints, // *** Call-Em-All R2D2
     output: {
       // The build folder.
       path: isEnvProduction ? paths.appBuild : undefined,
@@ -283,7 +282,7 @@ module.exports = function(webpackEnv) {
       // In development, it does not produce real files.
       filename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].js'
-        : isEnvDevelopment && 'static/js/[name].js',
+        : isEnvDevelopment && 'static/js/[name].js', // *** Call-Em-All R2D2
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
@@ -379,7 +378,7 @@ module.exports = function(webpackEnv) {
       },
       // Keep the runtime chunk separated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
-      runtimeChunk: 'single', // *** CEA true,
+      runtimeChunk: 'single', // *** Call-Em-All R2D2, was true,
     },
     resolve: {
       // This allows you to set a fallback for where Webpack should look for modules.
@@ -455,13 +454,6 @@ module.exports = function(webpackEnv) {
                   } else {
                     return {
                       extends: [require.resolve('eslint-config-react-app')],
-                      // *** CEA - temporarily disable some linting rules
-                      rules: {
-                        'jsx-a11y/anchor-is-valid': 'off',
-                        'jsx-a11y/aria-role': 'off',
-                        'react-hooks/exhaustive-deps': 'off',
-                        'no-control-regex': 'off',
-                      },
                     };
                   }
                 })(),
@@ -667,8 +659,7 @@ module.exports = function(webpackEnv) {
       ],
     },
     plugins: [
-      // *** Call-Em-All R2D2 ***
-      ...r2d2HtmlPlugins,
+      ...r2d2HtmlPlugins, // *** Call-Em-All R2D2
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       isEnvProduction &&
