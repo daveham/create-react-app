@@ -67,13 +67,15 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 module.exports = function(webpackEnv) {
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
+  const envEntryPoints = process.env.ENTRY_POINTS || '';
+  const entryPointsList = envEntryPoints.split(',');
 
   // *** Call-Em-All R2D2 ***
   const conditionalHotDevClient =
     isEnvDevelopment && require.resolve('react-dev-utils/webpackHotDevClient');
 
   const r2d2EntryPoints = {
-    app: [
+    bundle: [
       // Include an alternative client for WebpackDevServer. A client's job is to
       // connect to WebpackDevServer by a socket and get notified about changes.
       // When you save a file, the client will either apply hot updates (in case
@@ -98,6 +100,23 @@ module.exports = function(webpackEnv) {
     signup: [conditionalHotDevClient, paths.appSignupIndexJs].filter(Boolean),
     /* legacy: [conditionalHotDevClient, paths.appLegacyIndexJs].filter(Boolean), */
   };
+  // Allow excluding entry points from build based on environment variable ENTRY_POINTS.
+  // If the env variable is defined and an entry point is not included, remove it from
+  // the webpack entry points.
+  if (isEnvDevelopment && envEntryPoints) {
+    if (!entryPointsList.includes('bundle')) {
+      delete r2d2EntryPoints.bundle;
+    }
+    if (!entryPointsList.includes('login')) {
+      delete r2d2EntryPoints.login;
+    }
+    if (!entryPointsList.includes('onboarding')) {
+      delete r2d2EntryPoints.onboarding;
+    }
+    if (!entryPointsList.includes('signup')) {
+      delete r2d2EntryPoints.signup;
+    }
+  }
   // Adding the legacy entry point breaks hot/live reloading.
   if (!isEnvDevelopment) {
     r2d2EntryPoints.legacy = [paths.appLegacyIndexJs];
@@ -127,7 +146,7 @@ module.exports = function(webpackEnv) {
         {},
         {
           inject: true,
-          chunks: ['app'],
+          chunks: ['bundle'],
           template: paths.appHtml,
           filename: 'index.html',
         },
@@ -281,13 +300,15 @@ module.exports = function(webpackEnv) {
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
       filename: isEnvProduction
-        ? 'static/js/[name].[contenthash:8].js'
+        ? // ? 'static/js/[name].[contenthash:8].js'
+          'static/js/[name].js' // *** Call-Em-All R2D2
         : isEnvDevelopment && 'static/js/[name].js', // *** Call-Em-All R2D2
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
       chunkFilename: isEnvProduction
-        ? 'static/js/[name].[contenthash:8].chunk.js'
+        ? // ? 'static/js/[name].[contenthash:8].chunk.js'
+          'static/js/[name].js' // *** Call-Em-All R2D2
         : isEnvDevelopment && 'static/js/[name].chunk.js',
       // We inferred the "public path" (such as / or /my-project) from homepage.
       // We use "/" in development.
