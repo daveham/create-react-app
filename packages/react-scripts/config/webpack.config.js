@@ -393,13 +393,20 @@ module.exports = function(webpackEnv) {
       // Automatically split vendor and commons
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-      splitChunks: {
-        chunks: 'all',
-        name: false,
-      },
+      splitChunks: isEnvProduction
+        ? false
+        : {
+            chunks: 'all',
+            name: false,
+          },
+      // splitChunks: {
+      //   chunks: 'all',
+      //   name: false,
+      // },
       // Keep the runtime chunk separated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
-      runtimeChunk: 'single', // *** Call-Em-All R2D2, was true,
+      runtimeChunk: isEnvProduction ? false : 'single', // *** Call-Em-All R2D2, was true,
+      // runtimeChunk: 'single', // *** Call-Em-All R2D2, was true,
     },
     resolve: {
       // This allows you to set a fallback for where Webpack should look for modules.
