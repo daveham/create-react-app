@@ -62,6 +62,45 @@ const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
 
+// *** Call-Em-All R2D2
+const entrypointTemplate = path.join(
+  paths.appSrc,
+  'entrypoint-script-template.js'
+);
+
+// Generates an HTML file with the <script> injected for every R2D2 entry point.
+const makeHtmlPluginEntryForPage = (
+  entryPoint,
+  templatePath,
+  filename,
+  minifyOptions
+) =>
+  new HtmlWebpackPlugin(
+    Object.assign(
+      {},
+      {
+        inject: true,
+        chunks: [entryPoint],
+        template: templatePath,
+        filename,
+      },
+      minifyOptions
+    )
+  );
+// Generates a monolithic javascript file with the contents of all dependant chunks
+// for every R2D2 entry point. These are made available to external apps to load R2D2
+// bundles - such as legacy and forms.
+const makeHtmlPluginEntryForBundle = (entryPoint, filename) =>
+  new HtmlWebpackPlugin({
+    inject: false,
+    chunks: [entryPoint],
+    template: entrypointTemplate,
+    filename: filename,
+    minify: false,
+    cache: false,
+  });
+// *** Call-Em-All R2D2
+
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function(webpackEnv) {
@@ -117,7 +156,7 @@ module.exports = function(webpackEnv) {
       delete r2d2EntryPoints.signup;
     }
   }
-  // Adding the legacy entry point breaks hot/live reloading.
+  // Adding the legacy entry point breaks hot/live reloading so only add it for prod builds.
   if (!isEnvDevelopment) {
     r2d2EntryPoints.legacy = [paths.appLegacyIndexJs];
   }
@@ -140,68 +179,47 @@ module.exports = function(webpackEnv) {
     : undefined;
 
   const r2d2HtmlPlugins = [
-    // Generates an file with the <script> injected for every R2D2 entry point.
-    new HtmlWebpackPlugin(
-      Object.assign(
-        {},
-        {
-          inject: true,
-          chunks: ['bundle'],
-          template: paths.appHtml,
-          filename: 'index.html',
-        },
-        minifyOptions
-      )
+    makeHtmlPluginEntryForPage(
+      'bundle',
+      paths.appHtml,
+      'index.html',
+      minifyOptions
     ),
-    new HtmlWebpackPlugin(
-      Object.assign(
-        {},
-        {
-          inject: true,
-          chunks: ['login'],
-          template: paths.appLoginHtml,
-          filename: 'login.html',
-        },
-        minifyOptions
-      )
+    makeHtmlPluginEntryForPage(
+      'login',
+      paths.appLoginHtml,
+      'login.html',
+      minifyOptions
     ),
-    new HtmlWebpackPlugin(
-      Object.assign(
-        {},
-        {
-          inject: true,
-          chunks: ['onboarding'],
-          template: paths.appOnboardingHtml,
-          filename: 'onboarding.html',
-        },
-        minifyOptions
-      )
+    makeHtmlPluginEntryForPage(
+      'onboarding',
+      paths.appOnboardingHtml,
+      'onboarding.html',
+      minifyOptions
     ),
-    new HtmlWebpackPlugin(
-      Object.assign(
-        {},
-        {
-          inject: true,
-          chunks: ['signup'],
-          template: paths.appSignupHtml,
-          filename: 'signup.html',
-        },
-        minifyOptions
-      )
+    makeHtmlPluginEntryForPage(
+      'signup',
+      paths.appSignupHtml,
+      'signup.html',
+      minifyOptions
     ),
-    new HtmlWebpackPlugin(
-      Object.assign(
-        {},
-        {
-          inject: true,
-          chunks: ['verify-email'],
-          template: paths.appVerifyEmailHtml,
-          filename: 'verify-email.html',
-        },
-        minifyOptions
-      )
+    makeHtmlPluginEntryForPage(
+      'verify-email',
+      paths.appVerifyEmailHtml,
+      'verify-email.html',
+      minifyOptions
     ),
+
+    makeHtmlPluginEntryForBundle('bundle', 'static/js/bundle.js'),
+    makeHtmlPluginEntryForBundle('login', 'static/js/login.js'),
+    makeHtmlPluginEntryForBundle('onboarding', 'static/js/onboarding.js'),
+    makeHtmlPluginEntryForBundle('signup', 'static/js/signup.js'),
   ];
+  if (!isEnvDevelopment) {
+    r2d2HtmlPlugins.push(
+      makeHtmlPluginEntryForBundle('legacy', 'static/js/legacy.js')
+    );
+  }
   // *** Call-Em-All R2D2 ***
 
   // Webpack uses `publicPath` to determine where the app is being served from.
@@ -300,15 +318,13 @@ module.exports = function(webpackEnv) {
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
       filename: isEnvProduction
-        ? // ? 'static/js/[name].[contenthash:8].js'
-          'static/js/[name].js' // *** Call-Em-All R2D2
+        ? 'static/js/[name].[contenthash:8].js'
         : isEnvDevelopment && 'static/js/[name].js', // *** Call-Em-All R2D2
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
       chunkFilename: isEnvProduction
-        ? // ? 'static/js/[name].[contenthash:8].chunk.js'
-          'static/js/[name].js' // *** Call-Em-All R2D2
+        ? 'static/js/[name].[contenthash:8].chunk.js'
         : isEnvDevelopment && 'static/js/[name].chunk.js',
       // We inferred the "public path" (such as / or /my-project) from homepage.
       // We use "/" in development.
@@ -393,20 +409,13 @@ module.exports = function(webpackEnv) {
       // Automatically split vendor and commons
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
-      splitChunks: isEnvProduction
-        ? false
-        : {
-            chunks: 'all',
-            name: false,
-          },
-      // splitChunks: {
-      //   chunks: 'all',
-      //   name: false,
-      // },
+      splitChunks: {
+        chunks: 'all',
+        name: false,
+      },
       // Keep the runtime chunk separated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
-      runtimeChunk: isEnvProduction ? false : 'single', // *** Call-Em-All R2D2, was true,
-      // runtimeChunk: 'single', // *** Call-Em-All R2D2, was true,
+      runtimeChunk: 'single', // *** Call-Em-All R2D2, was true,
     },
     resolve: {
       // This allows you to set a fallback for where Webpack should look for modules.
