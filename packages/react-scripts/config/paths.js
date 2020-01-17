@@ -90,7 +90,6 @@ module.exports = {
   appLegacyIndexJs: resolveModule(resolveApp, 'src/legacy-app/index'),
   appLoginIndexJs: resolveModule(resolveApp, 'src/login-main'),
   appOnboardingIndexJs: resolveModule(resolveApp, 'src/onboarding/index'),
-  appSignupIndexJs: resolveModule(resolveApp, 'src/sign-up/index'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
@@ -121,7 +120,6 @@ module.exports = {
   appLegacyIndexJs: resolveModule(resolveApp, 'src/legacy-app/index'),
   appLoginIndexJs: resolveModule(resolveApp, 'src/login-main'),
   appOnboardingIndexJs: resolveModule(resolveApp, 'src/onboarding/index'),
-  appSignupIndexJs: resolveModule(resolveApp, 'src/sign-up/index'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
@@ -170,7 +168,6 @@ if (
       resolveApp,
       'template/src/onboarding/index'
     ),
-    appSignupIndexJs: resolveModule(resolveApp, 'template/src/sign-up/index'),
     appPackageJson: resolveOwn('package.json'),
     appSrc: resolveOwn('template/src'),
     appTsConfig: resolveOwn('template/tsconfig.json'),

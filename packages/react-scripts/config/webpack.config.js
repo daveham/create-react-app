@@ -136,7 +136,6 @@ module.exports = function(webpackEnv) {
     onboarding: [conditionalHotDevClient, paths.appOnboardingIndexJs].filter(
       Boolean
     ),
-    signup: [conditionalHotDevClient, paths.appSignupIndexJs].filter(Boolean),
     /* legacy: [conditionalHotDevClient, paths.appLegacyIndexJs].filter(Boolean), */
   };
   // Allow excluding entry points from build based on environment variable ENTRY_POINTS.
@@ -151,9 +150,6 @@ module.exports = function(webpackEnv) {
     }
     if (!entryPointsList.includes('onboarding')) {
       delete r2d2EntryPoints.onboarding;
-    }
-    if (!entryPointsList.includes('signup')) {
-      delete r2d2EntryPoints.signup;
     }
   }
   // Adding the legacy entry point breaks hot/live reloading so only add it for prod builds.
@@ -198,12 +194,6 @@ module.exports = function(webpackEnv) {
       minifyOptions
     ),
     makeHtmlPluginEntryForPage(
-      'signup',
-      paths.appSignupHtml,
-      'signup.html',
-      minifyOptions
-    ),
-    makeHtmlPluginEntryForPage(
       'verify-email',
       paths.appVerifyEmailHtml,
       'verify-email.html',
@@ -213,7 +203,6 @@ module.exports = function(webpackEnv) {
     makeHtmlPluginEntryForBundle('bundle', 'static/js/bundle.js'),
     makeHtmlPluginEntryForBundle('login', 'static/js/login.js'),
     makeHtmlPluginEntryForBundle('onboarding', 'static/js/onboarding.js'),
-    makeHtmlPluginEntryForBundle('signup', 'static/js/signup.js'),
   ];
   if (!isEnvDevelopment) {
     r2d2HtmlPlugins.push(
