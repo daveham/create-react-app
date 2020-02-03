@@ -84,7 +84,6 @@ module.exports = {
   appHtml: resolveApp('public/index.html'),
   appLoginHtml: resolveApp('public/login.html'),
   appOnboardingHtml: resolveApp('public/onboarding.html'),
-  appSignupHtml: resolveApp('public/signup.html'),
   appVerifyEmailHtml: resolveApp('public/verify-email.html'),
   appIndexJs: resolveModule(resolveApp, 'src/index'),
   appLegacyIndexJs: resolveModule(resolveApp, 'src/legacy-app/index'),
@@ -114,7 +113,6 @@ module.exports = {
   appHtml: resolveApp('public/index.html'),
   appLoginHtml: resolveApp('public/login.html'),
   appOnboardingHtml: resolveApp('public/onboarding.html'),
-  appSignupHtml: resolveApp('public/signup.html'),
   appVerifyEmailHtml: resolveApp('public/verify-email.html'),
   appIndexJs: resolveModule(resolveApp, 'src/index'),
   appLegacyIndexJs: resolveModule(resolveApp, 'src/legacy-app/index'),
@@ -156,7 +154,6 @@ if (
     appHtml: resolveOwn('template/public/index.html'),
     appLoginHtml: resolveApp('template/public/login.html'),
     appOnboardingHtml: resolveApp('template/public/onboarding.html'),
-    appSignupHtml: resolveApp('template/public/signup.html'),
     appVerifyEmailHtml: resolveApp('template/public/verify-email.html'),
     appIndexJs: resolveModule(resolveOwn, 'template/src/index'),
     appLegacyIndexJs: resolveModule(
